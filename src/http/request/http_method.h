@@ -1,5 +1,5 @@
 //
-// Created by detjon on 24-05-26.
+// Created by detjon on 2024-05-26.
 //
 
 #ifndef HTTPSERVER_C_HTTP_METHOD_H
