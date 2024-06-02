@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 int main(void) {
-    HTTPServer httpServer = http_server_init();
+    const HTTPServer httpServer = http_server_init();
     httpServer.start(&httpServer);
     close(httpServer.server.socket);
     return 0;

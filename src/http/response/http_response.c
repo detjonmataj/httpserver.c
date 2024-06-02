@@ -59,15 +59,16 @@ static const char *status_texts[] = {
     [505] = "HTTP Version Not Supported",
 };
 
-HTTPResponse create_http_response(int status_code, Hashmap *headers, char *body) {
+HTTPResponse create_http_response(const char *protocol_version, const int status_code, Hashmap *headers, char *body) {
     HTTPResponse response;
+    response.protocol_version = protocol_version;
     response.status_code = status_code;
     response.headers = headers;
     response.body = body;
     return response;
 }
 
-void free_http_response(HTTPResponse *response) {
+void free_http_response(const HTTPResponse *response) {
     if (response->headers != NULL) {
         hashmap_free(response->headers);
     }
@@ -76,16 +77,16 @@ void free_http_response(HTTPResponse *response) {
     }
 }
 
-const char *serialize_http_response(HTTPResponse response) {
+const char *serialize_http_response(const HTTPResponse response) {
     const char *status_text = (response.status_code < sizeof(status_texts) / sizeof(status_texts[0])) ? status_texts[response.status_code] : NULL;
 
     // TODO: The checks are redundant. Need to make sure  that the http response object is always valid.
     // Maybe this will become a problem when using modules for integrating with programming languages
     // In that case maybe it can be defaulted at a higher level (configuration?)
-    size_t protocol_version_length = (response.protocol_version != NULL) ? strlen(response.protocol_version) : 0;
-    size_t status_text_length = (status_text != NULL) ? strlen(status_text) : 0;
-    size_t status_code_length = 3; // HTTP status codes are 3 digits
-    size_t status_line_length = protocol_version_length + 1 + status_code_length + 1 + status_text_length + 2; // 1 space before status code, 1 space before status text, 2 for "\r\n"
+    const size_t protocol_version_length = (response.protocol_version != NULL) ? strlen(response.protocol_version) : 0;
+    const size_t status_text_length = (status_text != NULL) ? strlen(status_text) : 0;
+    const size_t status_code_length = 3; // HTTP status codes are 3 digits
+    const size_t status_line_length = protocol_version_length + 1 + status_code_length + 1 + status_text_length + 2; // 1 space before status code, 1 space before status text, 2 for "\r\n"
 
     size_t headers_length = 0;
     if (response.headers != NULL) {
@@ -98,10 +99,10 @@ const char *serialize_http_response(HTTPResponse response) {
     }
 
     // TODO: Include the length of the body in the http response struct or pull it from Content-Length Header instead
-    size_t body_length = (response.body != NULL) ? strlen(response.body) : 0;
+    const size_t body_length = (response.body != NULL) ? strlen(response.body) : 0;
 
-    size_t buffer_size = status_line_length + headers_length + body_length + 3; // 3 for "\r\n\r\n" at the end
-    char *buffer = (char *)malloc((buffer_size + 1) * sizeof(char)); // +1 for null terminator
+    const size_t buffer_size = status_line_length + headers_length + body_length + 3; // 3 for "\r\n\r\n" at the end
+    char *buffer = malloc((buffer_size + 1) * sizeof(char)); // +1 for null terminator
 
     if (buffer == NULL) {
         assert(NULL && "You need more RAM bro!");
@@ -117,7 +118,7 @@ const char *serialize_http_response(HTTPResponse response) {
         HashmapIterator *iterator = hashmap_iterator_init(response.headers);
         Entry *entry;
         while ((entry = hashmap_iterator_next(iterator)) != NULL) {
-            size_t len = strlen(buffer);
+            const size_t len = strlen(buffer);
             snprintf(buffer + len, buffer_size - len, "%s: %s\r\n", entry->key, entry->value);
         }
         hashmap_iterator_free(iterator);
