@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Server server_init(int domain, int service, int protocol, uint32_t interface, int port, int backlog) {
-    Server server = {
+Server server_init(const int domain, const int service, const int protocol, const uint32_t interface, const int port, const int backlog) {
+    const Server server = {
         .domain = domain,
         .service = service,
         .protocol = protocol,

@@ -13,7 +13,7 @@ HTTPRequest parse_http_request(char *request) {
     HTTPRequest http_request = {
         .headers = hashmap_init(),
     };
-    size_t request_length = strlen(request);
+    const size_t request_length = strlen(request);
     size_t pos = 0;
     size_t token_start = 0;
     size_t token_length = 0;
@@ -60,10 +60,10 @@ HTTPRequest parse_http_request(char *request) {
                     if (colon_position != NULL) {
                         *colon_position = '\0';
                         // it should be \r (CR), however i'm using temp just in case
-                        char temp = request[token_start + token_length];
+                        const char temp = request[token_start + token_length];
                         request[token_start + token_length] = '\0';
-                        char *key = request + token_start;
-                        char *value = colon_position + 1;
+                        const char *key = request + token_start;
+                        const char *value = colon_position + 1;
                         // Remove trailing spaces
                         while (*value == ' ') value++;
                         hashmap_insert(http_request.headers, key, value);

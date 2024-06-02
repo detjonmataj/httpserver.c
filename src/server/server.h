@@ -6,7 +6,6 @@
 #define HTTPSERVER_C_SERVER_H
 
 #include <netinet/in.h>
-#include <sys/socket.h>
 
 typedef struct {
     int domain;

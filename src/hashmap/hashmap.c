@@ -10,7 +10,7 @@
 #define LOAD_FACTOR 0.75
 #define INITIAL_SIZE 256
 
-unsigned long hash(const char *str, size_t size) {
+unsigned long hash(const char *str, const size_t size) {
     unsigned long hash = 5381;
     int c;
 
@@ -23,7 +23,7 @@ unsigned long hash(const char *str, size_t size) {
 }
 
 Hashmap *hashmap_init(void) {
-    Hashmap *map = (Hashmap *)malloc(sizeof(Hashmap));
+    Hashmap *map = malloc(sizeof(Hashmap));
     if (map) {
         map->size = INITIAL_SIZE;
         map->buckets = (Entry **)calloc(map->size, sizeof(Entry *));
@@ -33,7 +33,7 @@ Hashmap *hashmap_init(void) {
 }
 
 void hashmap_resize(Hashmap *map, size_t new_size) {
-    Entry **new_buckets = (Entry **)calloc(new_size, sizeof(Entry *));
+    Entry **new_buckets = calloc(new_size, sizeof(Entry *));
     if (!new_buckets) {
         // TODO: Handle allocation failure
         return;
@@ -60,8 +60,8 @@ void hashmap_insert(Hashmap *map, const char *key, const char *value) {
     if ((float)map->count / map->size >= LOAD_FACTOR) {
         hashmap_resize(map, map->size * 2);
     }
-    size_t index = hash(key, map->size);
-    Entry *entry = (Entry *)malloc(sizeof(Entry));
+    const size_t index = hash(key, map->size);
+    Entry *entry = malloc(sizeof(Entry));
     if (!entry) {
         return;
     }
@@ -82,8 +82,8 @@ char *hashmap_get(Hashmap *map, const char *key) {
     if (!map || !key) {
         return NULL;
     }
-    size_t index = hash(key, map->size);
-    Entry *entry = map->buckets[index];
+    const size_t index = hash(key, map->size);
+    const Entry *entry = map->buckets[index];
     while (entry != NULL) {
         if (strcmp(entry->key, key) == 0) {
             return entry->value;
@@ -97,7 +97,7 @@ void hashmap_remove(Hashmap *map, const char *key) {
     if (!map || !key) {
         return;
     }
-    size_t index = hash(key, map->size);
+    const size_t index = hash(key, map->size);
     Entry *entry = map->buckets[index];
     Entry *prev = NULL;
 
@@ -123,8 +123,8 @@ int hashmap_contains_key(Hashmap *map, const char *key) {
     if (!map || !key) {
         return 0;
     }
-    size_t index = hash(key, map->size);
-    Entry *entry = map->buckets[index];
+    const size_t index = hash(key, map->size);
+    const Entry *entry = map->buckets[index];
 
     while (entry != NULL) {
         if (strcmp(entry->key, key) == 0) {
@@ -181,7 +181,7 @@ void hashmap_free(Hashmap *map) {
 HashmapIterator *hashmap_iterator_init(Hashmap *map) {
     if (map == NULL) return NULL;
 
-    HashmapIterator *iterator = (HashmapIterator *)malloc(sizeof(HashmapIterator));
+    HashmapIterator *iterator = malloc(sizeof(HashmapIterator));
     if (iterator == NULL) return NULL;
 
     iterator->map = map;
@@ -194,7 +194,7 @@ HashmapIterator *hashmap_iterator_init(Hashmap *map) {
 Entry *hashmap_iterator_next(HashmapIterator *iterator) {
     if (iterator == NULL) return NULL;
 
-    Hashmap *map = iterator->map;
+    const Hashmap *map = iterator->map;
     if (map == NULL) return NULL;
 
     // If entry is present at current index and has a next entry (happens in case of key collision)

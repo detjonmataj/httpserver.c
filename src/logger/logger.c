@@ -3,13 +3,23 @@
 //
 
 #include "logger.h"
+
+#include "../utils.h"
+
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
-const char *serialize_log_level(LogLevel log_level);
+static const char *log_level_names[] = {
+    [LOG_TRACE] = "TRACE",
+    [LOG_DEBUG] = "DEBUG",
+    [LOG_INFO] = "INFO",
+    [LOG_WARNING] = "WARNING",
+    [LOG_ERROR] = "ERROR",
+    [LOG_FATAL] = "FATAL"};
 
-void Log(LogLevel log_level, const char *format, ...) {
+void Log(const LogLevel log_level, const char *format, ...) {
     FILE *log_file = fopen("logs/log.txt", "a");
     if (log_file == NULL) {
         perror("Log File");
@@ -17,10 +27,9 @@ void Log(LogLevel log_level, const char *format, ...) {
     }
 
     time_t raw_time;
-    struct tm *info;
     char formatted_time[64];
     time(&raw_time);
-    info = localtime(&raw_time);
+    const struct tm *info = localtime(&raw_time);
     strftime(formatted_time, sizeof(formatted_time), "%Y-%m-%d %H:%M:%S", info);
 
     // Write log level, timestamp, and message to the file
@@ -36,7 +45,16 @@ void Log(LogLevel log_level, const char *format, ...) {
     fclose(log_file);
 }
 
-const char *serialize_log_level(LogLevel log_level) {
-    static const char *log_level_names[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
+const char *serialize_log_level(const LogLevel log_level) {
     return ((log_level <= LOG_FATAL) != 0) ? log_level_names[log_level] : NULL;
+}
+
+LogLevel deserialize_log_level(const char *log_level) {
+    const int num_levels = ARRAY_SIZE(log_level_names);
+    for (int i = 0; i < num_levels; ++i) {
+        if (log_level_names[i] != NULL && strcmp(log_level, log_level_names[i]) == 0) {
+            return i;
+        }
+    }
+    return -1;
 }

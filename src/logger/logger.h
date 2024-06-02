@@ -15,5 +15,7 @@ typedef enum {
 } LogLevel;
 
 void Log(LogLevel log_level, const char *format, ...);
+const char *serialize_log_level(LogLevel log_level);
+LogLevel deserialize_log_level(const char *log_level);
 
 #endif //HTTPSERVER_C_LOGGER_H
