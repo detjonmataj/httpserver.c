@@ -74,7 +74,13 @@ long long read_file_content(const char *filename, char **content_buffer) {
 }
 
 const char *ltoa(const long number) {
-    static char str[20];
+    static char str[12];
+    snprintf(str, sizeof(str), "%ld", number);
+    return str;
+}
+
+const char *lltoa(long number) {
+    static char str[21];
     snprintf(str, sizeof(str), "%ld", number);
     return str;
 }
@@ -85,7 +91,7 @@ char* concat(const char *s1, const char *s2) {
     
     char *result = malloc(len1 + len2 + 1);
     if (result == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "You need more ram\n");
         exit(EXIT_FAILURE);
     }
     
