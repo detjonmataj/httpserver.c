@@ -15,6 +15,7 @@ typedef struct {
     bool enableLogging;
     LogLevel logLevel;
     char **defaultErrorPages;
+    bool allowDirectoryListing;
 } HttpConfig;
 
 HttpConfig parseConfig(const char *filename);
