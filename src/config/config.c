@@ -32,6 +32,7 @@ char *trimWhitespaceAndQuotes(char *str) {
     return str;
 }
 
+// TODO: Validate config values
 HttpConfig parseConfig(const char *filename) {
     HttpConfig config = {0};
     FILE *file = fopen(filename, "r");
@@ -67,10 +68,13 @@ HttpConfig parseConfig(const char *filename) {
             } else if (strcmp(key, "Port") == 0) {
                 config.port = atoi(value);
             } else if (strcmp(key, "EnableLogging") == 0) {
+                // TODO: extract this logic to utils
+                // Also we need to validate the config eary on so the user doesn't get confused in case of a misconfiguration.
                 config.enableLogging = strcmp(value, "true") == 0 ? true : false;
             } else if (strcmp(key, "LogLevel") == 0) {
                 config.logLevel = deserialize_log_level(value);
             } else if (strcmp(key, "ErrorPages") == 0) {
+                // TODO: Make this logic reusable in case we have other config with key-value pairs 
                 while (fgets(line, sizeof(line), file) && strstr(line, "}") == NULL) {
                     char *errorCodeToken = strtok(line, "=");
                     char *errorPageToken = strtok(NULL, "=");
@@ -82,6 +86,12 @@ HttpConfig parseConfig(const char *filename) {
                         config.defaultErrorPages[errorCode] = errorPage;
                     }
                 }
+            } else if (strcmp(key, "AllowDirectoryListing") == 0) {
+                config.allowDirectoryListing = strcmp(value, "true") == 0 ? true : false;
+            } else {
+                // I believe it's better to crash/warn rather than ignoring invalid configs. This will probly help avoiding confusions. 
+                fprintf(stderr, "Invalid config: '%s'.\n", key);
+                exit(EXIT_FAILURE);
             }
         }
     }
