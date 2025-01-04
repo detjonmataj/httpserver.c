@@ -22,3 +22,6 @@ run: $(TARGET)
 
 clean:
 	rm -f $(TARGET)
+
+format:
+	find . -name "*.c" -o -name "*.h" | xargs clang-format -i
