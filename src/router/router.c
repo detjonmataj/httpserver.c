@@ -6,6 +6,7 @@
 #include "../http/client/handle_client.h"
 #include "../utils.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
@@ -43,7 +44,15 @@ HTTPResponse route_request(const ClientContext context) {
 
             if (context.http_server.configs.defaultFileCount > 0) {
                 for (int i = 0; i < context.http_server.configs.defaultFileCount; i++) {
-                    char *default_file_full_path = concat(full_path, context.http_server.configs.defaultFiles[i]);
+                    char *default_file_full_path;
+                    if (full_path[strlen(full_path) - 1] == '/') {
+                        default_file_full_path = concat(full_path, context.http_server.configs.defaultFiles[i]);
+                    } else {
+                        char *temp = concat(full_path, "/");
+                        default_file_full_path = concat(temp, context.http_server.configs.defaultFiles[i]);
+                        free(temp);
+                    }
+
                     if (access(default_file_full_path, F_OK) == 0) {
                         full_path = default_file_full_path;
                         file_bytes_read = read_file_content(full_path, &content);
