@@ -4,11 +4,12 @@
 
 #include "router.h"
 #include "../http/client/handle_client.h"
+#include "../utils.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "../utils.h"
+
+#include <unistd.h>
 
 static char *HTML_500_ERROR =
     "<!DOCTYPE html>\n"
@@ -25,7 +26,7 @@ static char *HTML_500_ERROR =
 
 
 HTTPResponse route_request(const ClientContext context) {
-    HTTPResponse response = { .protocol_version = "HTTP/1.1", .status_code = 200, .headers = hashmap_init() };
+    HTTPResponse response = {.protocol_version = "HTTP/1.1", .status_code = 200, .headers = hashmap_init()};
     char *full_path = concat(context.http_server.configs.rootPath, context.request.URI);
     struct stat path_stat;
     char *content;
@@ -38,14 +39,33 @@ HTTPResponse route_request(const ClientContext context) {
         status_code = 404;
     } else {
         if (S_ISDIR(path_stat.st_mode)) {
-            if(context.http_server.configs.allowDirectoryListing) {
-                content = "Should show directory files if a config allows that.";
-                file_bytes_read = strlen(content);
-            } else {
-                full_path = context.http_server.configs.defaultErrorPages[403];
-                file_bytes_read = read_file_content(full_path, &content);
-                status_code = 403;
+            bool default_file_exists = false;
+
+            if (context.http_server.configs.defaultFileCount > 0) {
+                for (int i = 0; i < context.http_server.configs.defaultFileCount; i++) {
+                    char *default_file_full_path = concat(full_path, context.http_server.configs.defaultFiles[i]);
+                    if (access(default_file_full_path, F_OK) == 0) {
+                        full_path = default_file_full_path;
+                        file_bytes_read = read_file_content(full_path, &content);
+                        if (file_bytes_read >= 0) {
+                            default_file_exists = true;
+                        }
+                        break;
+                    }
+                }
             }
+
+            if (!default_file_exists) {
+                if (context.http_server.configs.allowDirectoryListing) {
+                    content = "Should show directory files if a config allows that.";
+                    file_bytes_read = strlen(content);
+                } else {
+                    full_path = context.http_server.configs.defaultErrorPages[403];
+                    file_bytes_read = read_file_content(full_path, &content);
+                    status_code = 403;
+                }
+            }
+
         } else if (S_ISREG(path_stat.st_mode)) {
             file_bytes_read = read_file_content(full_path, &content);
         } else {
