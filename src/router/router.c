@@ -57,6 +57,7 @@ HTTPResponse route_request(const ClientContext context) {
 
             if (!default_file_exists) {
                 if (context.http_server.configs.allowDirectoryListing) {
+                    // TODO: Should show directory files if a config allows that.
                     content = "Should show directory files if a config allows that.";
                     file_bytes_read = strlen(content);
                 } else {
