@@ -4,12 +4,12 @@
 
 #include "http_server.h"
 #include "../logger/logger.h"
+#include "./client/handle_client.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "./client/handle_client.h"
 
 void start(const HTTPServer *server);
 
@@ -22,6 +22,7 @@ HTTPServer http_server_init(void) {
 }
 
 void start(const HTTPServer *server) {
+    printf("[INFO]: Server started listening on port %d.\n", server->server.port);
     Log(LOG_INFO, "Server started listening on port %d", server->server.port);
     while (1) {
         struct sockaddr *sock_addr = (struct sockaddr *)&server->server.address;

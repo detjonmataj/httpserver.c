@@ -15,6 +15,6 @@ size_t cstringnlen(const char *str, size_t max_length);
 long long read_file_content(const char *filename, char **content_buffer);
 const char *ltoa(long number);
 const char *lltoa(long number);
-char* concat(const char *s1, const char *s2);
+char *concat(const char *s1, const char *s2);
 
 #endif //HTTPSERVER_C_UTILS_H

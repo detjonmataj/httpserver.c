@@ -85,18 +85,18 @@ const char *lltoa(long number) {
     return str;
 }
 
-char* concat(const char *s1, const char *s2) {
+char *concat(const char *s1, const char *s2) {
     const size_t len1 = strlen(s1);
     const size_t len2 = strlen(s2);
-    
+
     char *result = malloc(len1 + len2 + 1);
     if (result == NULL) {
         fprintf(stderr, "You need more ram\n");
         exit(EXIT_FAILURE);
     }
-    
+
     strcpy(result, s1);
     strcat(result, s2);
-    
+
     return result;
 }
